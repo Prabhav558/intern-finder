@@ -5,6 +5,8 @@ import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
 import { config } from './config/index.js';
 import authRoutes from './routes/auth.routes.js';
+import studentRoutes from './routes/student.routes.js';
+import opportunityRoutes from './routes/opportunity.routes.js';
 
 // Initialize Express app
 const app = express();
@@ -38,14 +40,8 @@ app.get('/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
-
-app.use('/api/students', (req, res) => {
-  res.json({ message: 'Student routes coming soon' });
-});
-
-app.use('/api/opportunities', (req, res) => {
-  res.json({ message: 'Opportunity routes coming soon' });
-});
+app.use('/api/students', studentRoutes);
+app.use('/api/opportunities', opportunityRoutes);
 
 app.use('/api/admin', (req, res) => {
   res.json({ message: 'Admin routes coming soon' });
@@ -55,7 +51,7 @@ app.use('/api/applications', (req, res) => {
   res.json({ message: 'Application routes coming soon' });
 });
 
-app.use('/api/notifications', (req, res) => {
+app.use('/api/notifications', (_req, res) => {
   res.json({ message: 'Notification routes coming soon' });
 });
 
@@ -78,7 +74,7 @@ app.use((req, res) => {
 });
 
 // Error handling middleware
-app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
   console.error('Error:', err);
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
