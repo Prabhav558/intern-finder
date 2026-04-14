@@ -11,28 +11,28 @@
 - [x] Set up Python FastAPI AI microservice skeleton
 - [x] Create Docker Compose file with PostgreSQL, Redis, and Meilisearch containers
 - [x] Configure Prisma ORM with PostgreSQL connection
-- [x] Write the full database schema (9 tables) in `schema.prisma`
+- [x] Write the full database schema (13 tables) in `schema.prisma`
 - [ ] Run initial Prisma migration to create all tables
 - [x] Set up environment variable files (`.env`, `.env.example`)
 - [x] Configure ESLint, Prettier, and TypeScript strict mode
 - [x] Set up project monorepo structure (`/frontend`, `/backend`, `/ai-service`)
-- [ ] Install all npm and pip dependencies
-- [ ] Create a seed script to populate demo/test data
+- [x] Install all npm dependencies (backend ✅, frontend 🔄, database 🔄, ai-service 🔄)
+- [x] Create a seed script to populate demo/test data
 
 ---
 
 ## 🔐 2. Authentication System
 
-- [ ] Build user registration API (email + password with bcrypt hashing)
-- [ ] Build login API with JWT access token + HTTP-only refresh cookie
+- [x] Build user registration API (email + password with bcrypt hashing)
+- [x] Build login API with JWT access token + HTTP-only refresh cookie
 - [ ] Integrate NextAuth.js for Google OAuth sign-in
 - [ ] Build email verification flow (send OTP, verify endpoint)
 - [ ] Build forgot password flow (email OTP → reset password)
-- [ ] Build token refresh endpoint
-- [ ] Create auth middleware for protected routes (student, admin, company roles)
-- [ ] Seed default admin account into the database
-- [ ] Build logout endpoint (invalidate refresh token)
-- [ ] Build `/api/auth/me` to return current user info
+- [x] Build token refresh endpoint
+- [x] Create auth middleware for protected routes (student, admin, company roles)
+- [x] Seed default admin account into the database
+- [x] Build logout endpoint (invalidate refresh token)
+- [x] Build `/api/auth/me` to return current user info
 
 ---
 

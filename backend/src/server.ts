@@ -1,39 +1,43 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 import { createServer } from 'http';
 import { Server as SocketServer } from 'socket.io';
-
-// Load environment variables
-dotenv.config();
+import { config } from './config/index.js';
+import authRoutes from './routes/auth.routes.js';
 
 // Initialize Express app
 const app = express();
 const httpServer = createServer(app);
 const io = new SocketServer(httpServer, {
   cors: {
-    origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+    origin: config.NEXT_PUBLIC_APP_URL,
     credentials: true,
   },
 });
 
 // Middleware
-app.use(cors({
-  origin: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-  credentials: true,
-}));
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(
+  cors({
+    origin: config.NEXT_PUBLIC_APP_URL,
+    credentials: true,
+  })
+);
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(cookieParser());
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+    environment: config.NODE_ENV,
+  });
 });
 
-// API Routes (to be implemented)
-app.use('/api/auth', (req, res) => {
-  res.json({ message: 'Auth routes coming soon' });
-});
+// API Routes
+app.use('/api/auth', authRoutes);
 
 app.use('/api/students', (req, res) => {
   res.json({ message: 'Student routes coming soon' });
@@ -47,6 +51,14 @@ app.use('/api/admin', (req, res) => {
   res.json({ message: 'Admin routes coming soon' });
 });
 
+app.use('/api/applications', (req, res) => {
+  res.json({ message: 'Application routes coming soon' });
+});
+
+app.use('/api/notifications', (req, res) => {
+  res.json({ message: 'Notification routes coming soon' });
+});
+
 // Socket.io event handling
 io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
@@ -56,20 +68,32 @@ io.on('connection', (socket) => {
   });
 });
 
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({
+    error: 'Route not found',
+    path: req.path,
+    method: req.method,
+  });
+});
+
 // Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-  console.error(err);
+  console.error('Error:', err);
   res.status(err.status || 500).json({
     error: err.message || 'Internal Server Error',
+    code: err.code || 'INTERNAL_ERROR',
   });
 });
 
 // Start server
-const PORT = process.env.PORT || 5000;
+const PORT = config.PORT;
 httpServer.listen(PORT, () => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
-  console.log(`📊 Health check: http://localhost:${PORT}/health`);
-  console.log(`🔌 Socket.io listening on port ${PORT}`);
+  console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`🔍 Health: http://localhost:${PORT}/health`);
+  console.log(`🔐 Auth: http://localhost:${PORT}/api/auth`);
+  console.log(`🔌 WebSocket: ws://localhost:${PORT}`);
+  console.log(`📝 Environment: ${config.NODE_ENV}`);
 });
 
 export { app, io };
