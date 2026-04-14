@@ -7,6 +7,8 @@ import { config } from './config/index.js';
 import authRoutes from './routes/auth.routes.js';
 import studentRoutes from './routes/student.routes.js';
 import opportunityRoutes from './routes/opportunity.routes.js';
+import applicationRoutes from './routes/application.routes.js';
+import bookmarkRoutes from './routes/bookmark.routes.js';
 
 // Initialize Express app
 const app = express();
@@ -42,13 +44,11 @@ app.get('/health', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/opportunities', opportunityRoutes);
+app.use('/api/applications', applicationRoutes);
+app.use('/api/bookmarks', bookmarkRoutes);
 
-app.use('/api/admin', (req, res) => {
+app.use('/api/admin', (_req, res) => {
   res.json({ message: 'Admin routes coming soon' });
-});
-
-app.use('/api/applications', (req, res) => {
-  res.json({ message: 'Application routes coming soon' });
 });
 
 app.use('/api/notifications', (_req, res) => {
