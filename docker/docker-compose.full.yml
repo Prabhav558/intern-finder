@@ -1,0 +1,92 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: opportunest-db
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: opportunest
+      POSTGRES_PASSWORD: opportunest_dev
+      POSTGRES_DB: opportunest
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U opportunest"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - opportunest-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: opportunest-redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - opportunest-network
+
+  meilisearch:
+    image: getmeili/meilisearch:latest
+    container_name: opportunest-search
+    restart: unless-stopped
+    ports:
+      - '7700:7700'
+    volumes:
+      - msdata:/meili_data
+    environment:
+      MEILI_NO_ANALYTICS: 'true'
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - opportunest-network
+
+  backend:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.dev
+    container_name: opportunest-backend
+    restart: unless-stopped
+    ports:
+      - '8081:8080'
+    environment:
+      DATABASE_URL: postgresql://opportunest:opportunest_dev@postgres:5432/opportunest
+      REDIS_URL: redis://redis:6379
+      MEILISEARCH_URL: http://meilisearch:7700
+      PORT: 8080
+      NODE_ENV: development
+      JWT_SECRET: your-jwt-secret-key-change-in-production
+      SESSION_SECRET: your-session-secret-key-change-in-production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - opportunest-network
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+
+volumes:
+  pgdata:
+  redisdata:
+  msdata:
+
+networks:
+  opportunest-network:
+    name: opportunest-network

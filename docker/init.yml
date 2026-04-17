@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  setup:
+    image: node:20
+    working_dir: /app
+    environment:
+      DATABASE_URL: postgresql://opportunest:opportunest_dev@opportunest-db:5432/opportunest
+    volumes:
+      - ../database:/app
+    networks:
+      - opportunest-network
+    command: sh -c "npm install && npx prisma db push --skip-generate && npm run seed"
+
+networks:
+  opportunest-network:
+    name: opportunest-network
+    external: true
